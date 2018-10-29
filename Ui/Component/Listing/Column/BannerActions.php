@@ -1,21 +1,31 @@
 <?php
 /**
- * Mageplaza_BannerSlider extension
- *                     NOTICE OF LICENSE
- * 
- *                     This source file is subject to the Mageplaza License
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
+ * Mageplaza
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Mageplaza.com license that is
+ * available through the world-wide-web at this URL:
  * https://www.mageplaza.com/LICENSE.txt
- * 
- *                     @category  Mageplaza
- *                     @package   Mageplaza_BannerSlider
- *                     @copyright Copyright (c) 2016
- *                     @license   https://www.mageplaza.com/LICENSE.txt
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category    Mageplaza
+ * @package     Mageplaza_Productslider
+ * @copyright   Copyright (c) 2018 Mageplaza (https://www.mageplaza.com/)
+ * @license     https://www.mageplaza.com/LICENSE.txt
  */
 namespace Mageplaza\BannerSlider\Ui\Component\Listing\Column;
 
-class BannerActions extends \Magento\Ui\Component\Listing\Columns\Column
+use Magento\Ui\Component\Listing\Columns\Column;
+use Magento\Framework\UrlInterface;
+use Magento\Framework\View\Element\UiComponent\ContextInterface;
+use Magento\Framework\View\Element\UiComponentFactory;
+
+class BannerActions extends Column
 {
     /**
      * Url path  to edit
@@ -23,13 +33,6 @@ class BannerActions extends \Magento\Ui\Component\Listing\Columns\Column
      * @var string
      */
     const URL_PATH_EDIT = 'mpbannerslider/banner/edit';
-
-    /**
-     * Url path  to delete
-     * 
-     * @var string
-     */
-    const URL_PATH_DELETE = 'mpbannerslider/banner/delete';
 
     /**
      * URL builder
@@ -48,9 +51,9 @@ class BannerActions extends \Magento\Ui\Component\Listing\Columns\Column
      * @param array $data
      */
     public function __construct(
-        \Magento\Framework\UrlInterface $urlBuilder,
-        \Magento\Framework\View\Element\UiComponent\ContextInterface $context,
-        \Magento\Framework\View\Element\UiComponentFactory $uiComponentFactory,
+        UrlInterface $urlBuilder,
+        ContextInterface $context,
+        UiComponentFactory $uiComponentFactory,
         array $components = [],
         array $data = []
     )

@@ -26,6 +26,9 @@ use Magento\Framework\Escaper;
  */
 class Image extends \Magento\Framework\Data\Form\Element\Image
 {
+    /**
+     * @var ImageModel
+     */
     protected $imageModel;
 
     /**
@@ -48,6 +51,7 @@ class Image extends \Magento\Framework\Data\Form\Element\Image
     )
     {
         $this->imageModel = $imageModel;
+
         parent::__construct($factoryElement, $factoryCollection, $escaper, $urlBuilder, $data);
     }
 

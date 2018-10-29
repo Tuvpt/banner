@@ -1,17 +1,22 @@
 <?php
 /**
- * Mageplaza_BetterSlider extension
- *                     NOTICE OF LICENSE
+ * Mageplaza
  *
- *                     This source file is subject to the Mageplaza License
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Mageplaza.com license that is
+ * available through the world-wide-web at this URL:
  * https://www.mageplaza.com/LICENSE.txt
  *
- *                     @category  Mageplaza
- *                     @package   Mageplaza_BannerSlider
- *                     @copyright Copyright (c) 2016
- *                     @license   https://www.mageplaza.com/LICENSE.txt
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category    Mageplaza
+ * @package     Mageplaza_BannerSlider
+ * @copyright   Copyright (c) Mageplaza (https://www.mageplaza.com/)
+ * @license     https://www.mageplaza.com/LICENSE.txt
  */
 namespace Mageplaza\BannerSlider\Block\Adminhtml\Banner\Edit\Tab;
 
@@ -39,7 +44,7 @@ class Banner extends Generic implements TabInterface
     /**
      * Status options
      *
-     * @var \Mageplaza\BannerSlider\Model\Config\Source\Status
+     * @var \Magento\Config\Model\Config\Source\Enabledisable
      */
     protected $statusOptions;
 
@@ -205,15 +210,15 @@ class Banner extends Generic implements TabInterface
             ]
         );
 
-//        $fieldset->addField('sliders_ids', '\Mageplaza\BannerSlider\Block\Adminhtml\Banner\Edit\Tab\Render\Slider', [
-//                'name' => 'sliders_ids',
-//                'label' => __('Sliders'),
-//                'title' => __('Sliders'),
-//            ]
-//        );
-//        if (!$banner->getSlidersIds()) {
-//            $banner->setSlidersIds($banner->getSlidersIds());
-//        }
+        $fieldset->addField('sliders_ids', '\Mageplaza\BannerSlider\Block\Adminhtml\Banner\Edit\Tab\Render\Slider', [
+                'name' => 'sliders_ids',
+                'label' => __('Sliders'),
+                'title' => __('Sliders'),
+            ]
+        );
+        if (!$banner->getSlidersIds()) {
+            $banner->setSlidersIds($banner->getSlidersIds());
+        }
 
         $bannerData = $this->_session->getData('mpbannerslider_banner_data', true);
         if ($bannerData) {

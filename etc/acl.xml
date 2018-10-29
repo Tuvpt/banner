@@ -25,8 +25,8 @@
         <resources>
             <resource id="Magento_Backend::admin">
                 <resource id="Mageplaza_BannerSlider::bannerslider" title="Banner Slider" sortOrder="55">
-                    <resource id="Mageplaza_BannerSlider::banner" title="Banners" sortOrder="10"/>
-                    <resource id="Mageplaza_BannerSlider::slider" title="Sliders" sortOrder="20"/>
+                    <resource id="Mageplaza_BannerSlider::banner" title="Manage Banner" sortOrder="10"/>
+                    <resource id="Mageplaza_BannerSlider::slider" title="Manage Slider" sortOrder="20"/>
                 </resource>
                 <resource id="Magento_Backend::stores">
                     <resource id="Magento_Backend::stores_settings">
