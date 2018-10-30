@@ -124,7 +124,7 @@ class Banner extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
      */
     protected function _afterSave(AbstractModel $object)
     {
-//        $this->saveSliderRelation($object);
+        $this->saveSliderRelation($object);
         return parent::_afterSave($object);
     }
 
@@ -132,77 +132,85 @@ class Banner extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
      * @param \Mageplaza\BannerSlider\Model\Banner $banner
      * @return array
      */
-//    public function getSlidersPosition(\Mageplaza\BannerSlider\Model\Banner $banner)
-//    {
-//        $select = $this->getConnection()->select()->from(
-//            $this->bannerSliderTable,
-//            ['slider_id', 'position']
-//        )
-//        ->where(
-//            'banner_id = :banner_id'
-//        );
-//        $bind = ['banner_id' => (int)$banner->getId()];
-//        return $this->getConnection()->fetchPairs($select, $bind);
-//    }
+    public function getSlidersPosition(\Mageplaza\BannerSlider\Model\Banner $banner)
+    {
+        $select = $this->getConnection()->select()->from(
+            $this->bannerSliderTable,
+            ['slider_id', 'position']
+        )
+        ->where(
+            'banner_id = :banner_id'
+        );
+        $bind = ['banner_id' => (int)$banner->getId()];
+        return $this->getConnection()->fetchPairs($select, $bind);
+    }
 
     /**
      * @param \Mageplaza\BannerSlider\Model\Banner $banner
+     *
      * @return $this
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
-//    protected function saveSliderRelation(\Mageplaza\BannerSlider\Model\Banner $banner)
-//    {
-//        $banner->setIsChangedSliderList(false);
-//        $id = $banner->getId();
-//        $sliders = $banner->getSlidersData();
-//        if ($sliders === null) {
-//            return $this;
-//        }
-//        $oldSliders = $banner->getSlidersPosition();
-//        $insert = array_diff_key($sliders, $oldSliders);
-//        $delete = array_diff_key($oldSliders, $sliders);
-//        $update = array_intersect_key($sliders, $oldSliders);
-//        $_update = array();
-//        foreach ($update as $key=>$settings) {
-//            if (isset($oldSliders[$key]) && $oldSliders[$key] != $settings['position']) {
-//                $_update[$key] = $settings;
-//            }
-//        }
-//        $update = $_update;
-//        $adapter = $this->getConnection();
-//        if (!empty($delete)) {
-//            $condition = ['slider_id IN(?)' => array_keys($delete), 'banner_id=?' => $id];
-//            $adapter->delete($this->bannerSliderTable, $condition);
-//        }
-//        if (!empty($insert)) {
-//            $data = [];
-//            foreach ($insert as $sliderId => $position) {
-//                $data[] = [
-//                    'banner_id' => (int)$id,
-//                    'slider_id' => (int)$sliderId,
-//                    'position' => (int)$position['position']
-//                ];
-//            }
-//            $adapter->insertMultiple($this->bannerSliderTable, $data);
-//        }
-//        if (!empty($update)) {
-//            foreach ($update as $sliderId => $position) {
-//                $where = ['banner_id = ?' => (int)$id, 'slider_id = ?' => (int)$sliderId];
-//                $bind = ['position' => (int)$position['position']];
-//                $adapter->update($this->bannerSliderTable, $bind, $where);
-//            }
-//        }
-//        if (!empty($insert) || !empty($delete)) {
-//            $sliderIds = array_unique(array_merge(array_keys($insert), array_keys($delete)));
-//            $this->eventManager->dispatch(
-//                'mageplaza_bannerslider_banner_change_sliders',
-//                ['banner' => $banner, 'slider_ids' => $sliderIds]
-//            );
-//        }
-//        if (!empty($insert) || !empty($update) || !empty($delete)) {
-//            $banner->setIsChangedSliderList(true);
-//            $sliderIds = array_keys($insert + $delete + $update);
-//            $banner->setAffectedSliderIds($sliderIds);
-//        }
-//        return $this;
-//    }
+    protected function saveSliderRelation(\Mageplaza\BannerSlider\Model\Banner $banner)
+    {
+        $banner->setIsChangedSliderList(false);
+        $id = $banner->getId();
+        $sliders = $banner->getSlidersIds();
+        if ($sliders === null) {
+            return $this;
+        }
+        $oldSliders = $banner->getSliderIds();
+
+        $insert = array_diff($sliders, $oldSliders);
+        $delete = array_diff($oldSliders, $sliders);
+        $adapter = $this->getConnection();
+
+        if (!empty($delete)) {
+            $condition = ['slider_id IN(?)' => $delete, 'banner_id=?' => $id];
+            $adapter->delete($this->bannerSliderTable, $condition);
+        }
+        if (!empty($insert)) {
+            $data = [];
+            foreach ($insert as $tagId) {
+                $data[] = [
+                    'banner_id'  => (int)$id,
+                    'slider_id'   => (int)$tagId,
+                    'position' => 1
+                ];
+            }
+            $adapter->insertMultiple($this->bannerSliderTable, $data);
+        }
+        if (!empty($insert) || !empty($delete)) {
+            $sliderIds = array_unique(array_merge(array_keys($insert), array_keys($delete)));
+            $this->eventManager->dispatch(
+                'mageplaza_bannerslider_banner_change_sliders',
+                ['banner' => $banner, 'slider_ids' => $sliderIds]);
+        }
+        if (!empty($insert) || !empty($delete)) {
+            $banner->setIsChangedSliderList(true);
+            $sliderIds = array_keys($insert + $delete);
+            $banner->setAffectedSliderIds($sliderIds);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param \Mageplaza\BannerSlider\Model\Banner $banner
+     * @return array
+     */
+    public function getSliderIds(\Mageplaza\BannerSlider\Model\Banner $banner)
+    {
+        $adapter = $this->getConnection();
+        $select  = $adapter->select()->from(
+            $this->bannerSliderTable,
+            'slider_id'
+        )
+                           ->where(
+                               'banner_id = ?',
+                               (int)$banner->getId()
+                           );
+
+        return $adapter->fetchCol($select);
+    }
 }

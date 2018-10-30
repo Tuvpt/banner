@@ -31,6 +31,7 @@ use Magento\Store\Model\System\Store;
 use Magento\Customer\Api\GroupRepositoryInterface;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Convert\DataObject;
+use Magento\Framework\Stdlib\DateTime;
 
 class Slider extends Generic implements TabInterface
 {
@@ -164,7 +165,8 @@ class Slider extends Generic implements TabInterface
             'name'   => 'location',
             'label'  => __('Position'),
             'title'  => __('Position'),
-            'values' => $this->_location->toOptionArray()
+            'values' => $this->_location->toOptionArray(),
+            'note'   => __('Select the position to display block.')
         ]);
 
         if (!$this->_storeManager->isSingleStoreMode()) {
@@ -198,21 +200,30 @@ class Slider extends Generic implements TabInterface
             ]
         );
 
+        $fieldset->addField('from_date', 'date', [
+            'name'        => 'from_date',
+            'label'       => __('Display from'),
+            'title'       => __('Display from'),
+            'date_format' => 'M/d/yyyy',
+            'input_format' => DateTime::DATE_INTERNAL_FORMAT,
+            'timezone'    => false
+        ]);
+
+        $fieldset->addField('to_date', 'date', [
+            'name'        => 'to_date',
+            'label'       => __('Display to'),
+            'title'       => __('Display to'),
+            'date_format' => 'M/d/yyyy',
+            'input_format' => DateTime::DATE_INTERNAL_FORMAT,
+            'timezone'    => false
+        ]);
+
         $fieldset->addField('priority', 'text', [
                 'name'  => 'priority',
                 'label' => __('Priority'),
                 'note'  => __('Enter a number to set priority for the slider. A lower number represents a higher priority.')
             ]
         );
-
-//        $sliderData = $this->_session->getData('mpbannerslider_slider_data', true);
-//        if ($sliderData) {
-//            $slider->addData($sliderData);
-//        } else {
-//            if (!$slider->getId()) {
-//                $slider->addData($slider->getDefaultValues());
-//            }
-//        }
 
         $form->addValues($slider->getData());
         $this->setForm($form);

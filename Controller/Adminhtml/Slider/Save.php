@@ -20,7 +20,14 @@
  */
 namespace Mageplaza\BannerSlider\Controller\Adminhtml\Slider;
 
-class Save extends \Mageplaza\BannerSlider\Controller\Adminhtml\Slider
+use Mageplaza\BannerSlider\Controller\Adminhtml\Slider;
+use Magento\Framework\Stdlib\DateTime\Filter\Date;
+use Magento\Backend\Helper\Js;
+use Mageplaza\BannerSlider\Model\SliderFactory;
+use Magento\Framework\Registry;
+use Magento\Backend\App\Action\Context;
+
+class Save extends Slider
 {
 
     /**
@@ -31,21 +38,32 @@ class Save extends \Mageplaza\BannerSlider\Controller\Adminhtml\Slider
     protected $jsHelper;
 
     /**
-     * constructor
-     * 
-     * @param \Magento\Backend\Helper\Js $jsHelper
-     * @param \Mageplaza\BannerSlider\Model\SliderFactory $sliderFactory
-     * @param \Magento\Framework\Registry $registry
-     * @param \Magento\Backend\App\Action\Context $context
+     * Date filter
+     *
+     * @var \Magento\Framework\Stdlib\DateTime\Filter\Date
+     */
+    protected $_dateFilter;
+
+    /**
+     * Save constructor.
+     *
+     * @param Js $jsHelper
+     * @param SliderFactory $sliderFactory
+     * @param Registry $registry
+     * @param Context $context
+     * @param Date $dateFilter
      */
     public function __construct(
-        \Magento\Backend\Helper\Js $jsHelper,
-        \Mageplaza\BannerSlider\Model\SliderFactory $sliderFactory,
-        \Magento\Framework\Registry $registry,
-        \Magento\Backend\App\Action\Context $context
+        Js $jsHelper,
+        SliderFactory $sliderFactory,
+        Registry $registry,
+        Context $context,
+        Date $dateFilter
     )
     {
         $this->jsHelper       = $jsHelper;
+        $this->_dateFilter = $dateFilter;
+
         parent::__construct($sliderFactory, $registry, $context);
     }
 
@@ -59,12 +77,15 @@ class Save extends \Mageplaza\BannerSlider\Controller\Adminhtml\Slider
         $resultRedirect = $this->resultRedirectFactory->create();
 
         if ($data = $this->getRequest()->getPost('slider')) {
+            $data   = $this->_filterData($data);
             $slider = $this->initSlider();
+
+            $banners = $this->getRequest()->getPost('banners', -1);
+            if ($banners != -1) {
+                $slider->setBannersData($this->jsHelper->decodeGridSerializedInput($banners));
+            }
             $slider->addData($data);
-//            $banners = $this->getRequest()->getPost('banners', -1);
-//            if ($banners != -1) {
-//                $slider->setBannersData($this->jsHelper->decodeGridSerializedInput($banners));
-//            }
+
             $this->_eventManager->dispatch(
                 'mpbannerslider_slider_prepare_save',
                 [
@@ -72,6 +93,7 @@ class Save extends \Mageplaza\BannerSlider\Controller\Adminhtml\Slider
                     'request' => $this->getRequest()
                 ]
             );
+
             try {
                 $slider->save();
                 $this->messageManager->addSuccess(__('The Slider has been saved.'));
@@ -95,6 +117,7 @@ class Save extends \Mageplaza\BannerSlider\Controller\Adminhtml\Slider
             } catch (\Exception $e) {
                 $this->messageManager->addException($e, __('Something went wrong while saving the Slider.'));
             }
+
             $this->_getSession()->setMageplazaBannerSliderSliderData($data);
             $resultRedirect->setPath(
                 'mpbannerslider/*/edit',
@@ -110,5 +133,27 @@ class Save extends \Mageplaza\BannerSlider\Controller\Adminhtml\Slider
         $resultRedirect->setPath('mpbannerslider/*/');
 
         return $resultRedirect;
+    }
+
+    /**
+     * filter values
+     *
+     * @param array $data
+     * @return array
+     */
+    protected function _filterData($data)
+    {
+        $inputFilter = new \Zend_Filter_Input(['from_date' => $this->_dateFilter,], [], $data);
+        $data        = $inputFilter->getUnescaped();
+
+        if (isset($data['responsive_items'])) {
+            unset($data['responsive_items']['__empty']);
+        }
+
+        if ($banners = $this->getRequest()->getParam('banners')) {
+            $data['banner_ids'] = $banners;
+        }
+
+        return $data;
     }
 }

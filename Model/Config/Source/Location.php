@@ -41,6 +41,7 @@ class Location implements ArrayInterface
     const PRODUCT_CONTENT_BOTTOM  = 'catalog_product_view.content-bottom';
     const CHECKOUT_CONTENT_TOP    = 'checkout_cart_index.content-top';
     const CHECKOUT_CONTENT_BOTTOM = 'checkout_cart_index.content-bottom';
+    const MANUALLY                = 'custom';
 
     /**
      * Return array of options as value-label pairs
@@ -122,7 +123,8 @@ class Location implements ArrayInterface
                         'value' => self::CHECKOUT_CONTENT_BOTTOM
                     ]
                 ]
-            ]
+            ],
+            ['value' => [['label' => __('Use widget or snippet code'), 'value' => self::MANUALLY]], 'label' => __('Manually')]
         ];
 
         return $options;

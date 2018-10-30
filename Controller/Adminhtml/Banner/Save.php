@@ -24,6 +24,7 @@ use Mageplaza\BannerSlider\Helper\Image;
 use Mageplaza\BannerSlider\Model\BannerFactory;
 use Magento\Framework\Registry;
 use Magento\Backend\App\Action\Context;
+use Magento\Backend\Helper\Js;
 
 class Save extends \Mageplaza\BannerSlider\Controller\Adminhtml\Banner
 {
@@ -36,6 +37,13 @@ class Save extends \Mageplaza\BannerSlider\Controller\Adminhtml\Banner
     protected $imageHelper;
 
     /**
+     * JS helper
+     *
+     * @var \Magento\Backend\Helper\Js
+     */
+    public $jsHelper;
+
+    /**
      * Save constructor.
      * @param Image $imageHelper
      * @param \Mageplaza\BannerSlider\Model\BannerFactory $bannerFactory
@@ -46,10 +54,12 @@ class Save extends \Mageplaza\BannerSlider\Controller\Adminhtml\Banner
         Image $imageHelper,
         BannerFactory $bannerFactory,
         Registry $registry,
+        Js $jsHelper,
         Context $context
     )
     {
         $this->imageHelper     = $imageHelper;
+        $this->jsHelper    = $jsHelper;
         parent::__construct($bannerFactory, $registry, $context);
     }
 
@@ -66,6 +76,13 @@ class Save extends \Mageplaza\BannerSlider\Controller\Adminhtml\Banner
             $banner = $this->initBanner();
 
             $this->imageHelper->uploadImage($data, 'image', Image::TEMPLATE_MEDIA_TYPE_BANNER, $banner->getImage());
+            $data['sliders_ids'] = (isset($data['sliders_ids']) && $data['sliders_ids']) ? explode(',', $data['sliders_ids']) : [];
+            if ($sliders = $this->getRequest()->getPost('sliders', false)) {
+                $banner->setTagsData(
+                    $this->jsHelper->decodeGridSerializedInput($sliders)
+                );
+            }
+
             $banner->addData($data);
 
             $this->_eventManager->dispatch(

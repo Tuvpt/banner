@@ -192,26 +192,20 @@
                 </item>
             </argument>
         </column>
-        <!--<column name="banner">-->
-            <!--<argument name="data" xsi:type="array">-->
-                <!--<item name="config" xsi:type="array">-->
-                    <!--<item name="filter" xsi:type="string">text</item>-->
-                    <!--<item name="label" xsi:type="string" translate="true">Number of banner</item>-->
-                    <!--<item name="sortOrder" xsi:type="number">40</item>-->
-                <!--</item>-->
-            <!--</argument>-->
-        <!--</column>-->
+        <column name="banners" class="Mageplaza\BannerSlider\Ui\Component\Listing\Column\Banners">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="bodyTmpl" xsi:type="string">ui/grid/cells/html</item>
+                    <item name="label" xsi:type="string" translate="true">Number of banner</item>
+                    <item name="sortOrder" xsi:type="number">40</item>
+                </item>
+            </argument>
+        </column>
         <column name="location" class="Mageplaza\BannerSlider\Ui\Component\Listing\Column\SliderLocation">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
-                    <item name="filter" xsi:type="string">text</item>
+                    <item name="filter" xsi:type="string">select</item>
                     <item name="bodyTmpl" xsi:type="string">ui/grid/cells/html</item>
-                    <item name="editor" xsi:type="array">
-                        <item name="editorType" xsi:type="string">text</item>
-                        <item name="validation" xsi:type="array">
-                            <item name="required-entry" xsi:type="boolean">true</item>
-                        </item>
-                    </item>
                     <item name="label" xsi:type="string" translate="true">Slider Location</item>
                     <item name="sortOrder" xsi:type="number">50</item>
                 </item>
@@ -227,6 +221,16 @@
                 </item>
             </argument>
         </column>
+        <column name="customer_group_ids" class="Mageplaza\BannerSlider\Ui\Component\Listing\Column\CustomerGroup">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="bodyTmpl" xsi:type="string">ui/grid/cells/html</item>
+                    <item name="sortable" xsi:type="boolean">false</item>
+                    <item name="label" xsi:type="string" translate="true">Customer Groups</item>
+                    <item name="sortOrder" xsi:type="number">65</item>
+                </item>
+            </argument>
+        </column>
         <column name="priority">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
@@ -237,23 +241,21 @@
                 </item>
             </argument>
         </column>
-        <column name="created_at" class="Magento\Ui\Component\Listing\Columns\Date">
+        <column name="from_date">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
+                    <item name="label" xsi:type="string" translate="true">Start Date</item>
                     <item name="component" xsi:type="string">Magento_Ui/js/grid/columns/date</item>
                     <item name="dataType" xsi:type="string">date</item>
-                    <item name="label" xsi:type="string" translate="true">Created</item>
-                    <item name="sortOrder" xsi:type="number">60</item>
                 </item>
             </argument>
         </column>
-        <column name="updated_at" class="Magento\Ui\Component\Listing\Columns\Date">
+        <column name="to_date">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
+                    <item name="label" xsi:type="string" translate="true">End Date</item>
                     <item name="component" xsi:type="string">Magento_Ui/js/grid/columns/date</item>
                     <item name="dataType" xsi:type="string">date</item>
-                    <item name="label" xsi:type="string" translate="true">Modified</item>
-                    <item name="sortOrder" xsi:type="number">70</item>
                 </item>
             </argument>
         </column>

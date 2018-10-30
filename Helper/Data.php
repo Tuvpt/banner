@@ -25,17 +25,50 @@ use Mageplaza\Core\Helper\AbstractData;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Store\Model\ScopeInterface;
+use Mageplaza\BannerSlider\Model\BannerFactory;
+use Mageplaza\BannerSlider\Model\SliderFactory;
+use Magento\Framework\Stdlib\DateTime\DateTime;
+use Magento\Framework\App\Http\Context as HttpContext;
 
 class Data extends AbstractData
 {
     const CONFIG_MODULE_PATH = 'bannerslider';
 
+    /**
+     * @var BannerFactory
+     */
+    public $bannerFactory;
+
+    /**
+     * @var SliderFactory
+     */
+    public $sliderFactory;
+
+    /**
+     * @var DateTime
+     */
+    protected $date;
+
+    /**
+     * @var HttpContext
+     */
+    protected $httpContext;
+
     public function __construct(
         Context $context,
         ObjectManagerInterface $objectManager,
-        StoreManagerInterface $storeManager
+        StoreManagerInterface $storeManager,
+        BannerFactory $bannerFactory,
+        SliderFactory $sliderFactory,
+        DateTime $date,
+        HttpContext $httpContext
     )
     {
+        $this->bannerFactory = $bannerFactory;
+        $this->sliderFactory = $sliderFactory;
+        $this->date          = $date;
+        $this->httpContext   = $httpContext;
+
         parent::__construct($context, $objectManager, $storeManager);
     }
 
@@ -95,5 +128,43 @@ class Data extends AbstractData
         $responsiveOptions = rtrim($responsiveOptions, ',');
 
         return 'responsive:{' . $responsiveOptions . '}';
+    }
+
+    /**
+     * @param null $id
+     * @return \Mageplaza\BannerSlider\Model\ResourceModel\Banner\Collection
+     */
+    public function getBannerCollection($id = null)
+    {
+
+        $collection = $this->bannerFactory->create()->getCollection();
+
+        $collection->join(
+            ['banner_slider' => $collection->getTable('mageplaza_bannerslider_banner_slider')],
+            'main_table.banner_id=banner_slider.banner_id AND banner_slider.slider_id=' . $id,
+            ['position']
+        );
+
+        return $collection;
+    }
+
+    /**
+     * @return Collection
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
+    public function getActiveSliders()
+    {
+        /** @var Collection $collection */
+        $collection = $this->sliderFactory->create()
+                                          ->getCollection()
+                                          ->addFieldToFilter('customer_group_ids', ['finset' => $this->httpContext->getValue(\Magento\Customer\Model\Context::CONTEXT_GROUP)])
+                                          ->addFieldToFilter('status', 1);
+
+        $collection->getSelect()
+                   ->where('FIND_IN_SET(0, store_ids) OR FIND_IN_SET(?, store_ids)', $this->storeManager->getStore()->getId())
+                   ->where('from_date is null OR from_date <= ?', $this->date->date())
+                   ->where('to_date is null OR to_date >= ?', $this->date->date());
+
+        return $collection;
     }
 }

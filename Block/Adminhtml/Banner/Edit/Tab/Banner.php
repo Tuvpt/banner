@@ -217,7 +217,7 @@ class Banner extends Generic implements TabInterface
             ]
         );
         if (!$banner->getSlidersIds()) {
-            $banner->setSlidersIds($banner->getSlidersIds());
+            $banner->setSlidersIds($banner->getSliderIds());
         }
 
         $bannerData = $this->_session->getData('mpbannerslider_banner_data', true);

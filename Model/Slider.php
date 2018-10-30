@@ -1,19 +1,30 @@
 <?php
 /**
- * Mageplaza_BannerSlider extension
- *                     NOTICE OF LICENSE
- * 
- *                     This source file is subject to the Mageplaza License
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
+ * Mageplaza
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Mageplaza.com license that is
+ * available through the world-wide-web at this URL:
  * https://www.mageplaza.com/LICENSE.txt
- * 
- *                     @category  Mageplaza
- *                     @package   Mageplaza_BannerSlider
- *                     @copyright Copyright (c) 2016
- *                     @license   https://www.mageplaza.com/LICENSE.txt
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category    Mageplaza
+ * @package     Mageplaza_BannerSlider
+ * @copyright   Copyright (c) Mageplaza (https://www.mageplaza.com/)
+ * @license     https://www.mageplaza.com/LICENSE.txt
  */
 namespace Mageplaza\BannerSlider\Model;
+
+use Mageplaza\BannerSlider\Model\ResourceModel\Banner\CollectionFactory;
+use Magento\Framework\Model\Context;
+use Magento\Framework\Registry;
+use Magento\Framework\Model\ResourceModel\AbstractResource;
+use Magento\Framework\Data\Collection\AbstractDb;
 
 /**
  * @method Slider setName($name)
@@ -83,15 +94,16 @@ class Slider extends \Magento\Framework\Model\AbstractModel
      * @param array $data
      */
     public function __construct(
-        \Mageplaza\BannerSlider\Model\ResourceModel\Banner\CollectionFactory $bannerCollectionFactory,
-        \Magento\Framework\Model\Context $context,
-        \Magento\Framework\Registry $registry,
-        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
-        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
+        CollectionFactory $bannerCollectionFactory,
+        Context $context,
+        Registry $registry,
+        AbstractResource $resource = null,
+        AbstractDb $resourceCollection = null,
         array $data = []
     )
     {
         $this->bannerCollectionFactory = $bannerCollectionFactory;
+
         parent::__construct($context, $registry, $resource, $resourceCollection, $data);
     }
 
@@ -124,6 +136,7 @@ class Slider extends \Magento\Framework\Model\AbstractModel
     public function getDefaultValues()
     {
         $values = [];
+        $values['status'] = '1';
 
         return $values;
     }
@@ -135,11 +148,13 @@ class Slider extends \Magento\Framework\Model\AbstractModel
         if (!$this->getId()) {
             return array();
         }
+
         $array = $this->getData('banners_position');
         if (is_null($array)) {
             $array = $this->getResource()->getBannersPosition($this);
             $this->setData('banners_position', $array);
         }
+
         return $array;
     }
 
@@ -150,13 +165,14 @@ class Slider extends \Magento\Framework\Model\AbstractModel
     {
         if (is_null($this->bannerCollection)) {
             $collection = $this->bannerCollectionFactory->create();
-            $collection->join(
-                'mageplaza_bannerslider_banner_slider',
-                'main_table.banner_id=mageplaza_bannerslider_banner_slider.banner_id AND mageplaza_bannerslider_banner_slider.slider_id='.$this->getId(),
+            $collection->getSelect()->join(
+                ['banner_slider' => $this->getResource()->getTable('mageplaza_bannerslider_banner_slider')],
+                'main_table.banner_id=banner_slider.banner_id AND banner_slider.slider_id='.$this->getId(),
                 ['position']
             );
             $this->bannerCollection = $collection;
         }
+
         return $this->bannerCollection;
     }
 }

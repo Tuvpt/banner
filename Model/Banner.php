@@ -25,6 +25,7 @@ use Magento\Framework\Model\Context;
 use Magento\Framework\Registry;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
 use Magento\Framework\Data\Collection\AbstractDb;
+use Mageplaza\BannerSlider\Model\ResourceModel\Slider\CollectionFactory as sliderCollectionFactory;
 
 /**
  * @method Banner setName($name)
@@ -75,10 +76,17 @@ class Banner extends \Magento\Framework\Model\AbstractModel
 
     /**
      * Slider Collection
-     * 
+     *
      * @var \Mageplaza\BannerSlider\Model\ResourceModel\Slider\Collection
      */
     protected $sliderCollection;
+
+    /**
+     * Slider Collection Factory
+     *
+     * @var \Mageplaza\BannerSlider\Model\ResourceModel\Slider\CollectionFactory
+     */
+    protected $sliderCollectionFactory;
 
     /**
      * Slider Collection Factory
@@ -90,17 +98,17 @@ class Banner extends \Magento\Framework\Model\AbstractModel
 
 
     /**
-     * constructor
-     * 
-     * @param \Mageplaza\BannerSlider\Model\ResourceModel\Slider\CollectionFactory $sliderCollectionFactory
-     * @param \Magento\Framework\Model\Context $context
-     * @param \Magento\Framework\Registry $registry
-     * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
-     * @param \Magento\Framework\Data\Collection\AbstractDb $resourceCollection
+     * Banner constructor.
+     *
+     * @param sliderCollectionFactory $sliderCollectionFactory
+     * @param Context $context
+     * @param Registry $registry
+     * @param AbstractResource|null $resource
+     * @param AbstractDb|null $resourceCollection
      * @param array $data
      */
     public function __construct(
-//        \Mageplaza\BannerSlider\Model\ResourceModel\Slider\CollectionFactory $sliderCollectionFactory,
+        sliderCollectionFactory $sliderCollectionFactory,
         Context $context,
         Registry $registry,
         AbstractResource $resource = null,
@@ -108,7 +116,8 @@ class Banner extends \Magento\Framework\Model\AbstractModel
         array $data = []
     )
     {
-//        $this->sliderCollectionFactory = $sliderCollectionFactory;
+        $this->sliderCollectionFactory = $sliderCollectionFactory;
+
         parent::__construct($context, $registry, $resource, $resourceCollection, $data);
     }
 
@@ -141,42 +150,29 @@ class Banner extends \Magento\Framework\Model\AbstractModel
     public function getDefaultValues()
     {
         $values = [];
-        $values['type'] = '';
+        $values['status'] = '1';
+        $values['type'] = '0';
         return $values;
     }
 
     /**
-     * @return array|mixed
+     * @return ResourceModel\Slider\Collection
      */
-//    public function getSlidersPosition()
-//    {
-//        if (!$this->getId()) {
-//            return array();
-//        }
-//        $array = $this->getData('sliders_position');
-//        if (is_null($array)) {
-//            $array = $this->getResource()->getSlidersPosition($this);
-//            $this->setData('sliders_position', $array);
-//        }
-//        return $array;
-//    }
+    public function getSelectedSlidersCollection()
+    {
+        if (is_null($this->sliderCollection)) {
+            $collection = $this->sliderCollectionFactory->create();
+            $collection->getSelect()->join(
+                ['banner_slider' => $this->getResource()->getTable('mageplaza_bannerslider_banner_slider')],
+                'main_table.slider_id=banner_slider.slider_id AND banner_slider.banner_id='.$this->getId(),
+                ['position']
+            );
+            $collection->addFieldToFilter('status',1);
 
-
-//    public function getSelectedSlidersCollection()
-//    {
-//        if (is_null($this->sliderCollection)) {
-//            $collection = $this->sliderCollectionFactory->create();
-//            $collection->join(
-//                'mageplaza_bannerslider_banner_slider',
-//                'main_table.slider_id=mageplaza_bannerslider_banner_slider.slider_id AND mageplaza_bannerslider_banner_slider.banner_id='.$this->getId(),
-//                ['position']
-//            );
-//            $collection->addFieldToFilter('status',1);
-//
-//            $this->sliderCollection = $collection;
-//        }
-//        return $this->sliderCollection;
-//    }
+            $this->sliderCollection = $collection;
+        }
+        return $this->sliderCollection;
+    }
 
     /**
      * get full image url

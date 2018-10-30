@@ -108,6 +108,9 @@ class SliderLocation extends Column
                 $location['type']     = 'Checkout Page';
                 $location['location'] = 'Top of Bottom';
                 break;
+            case Location::MANUALLY :
+                $location['type'] = 'Manually';
+                $location['location'] = 'Use widget or snippet code';
         }
 
         return $location;
